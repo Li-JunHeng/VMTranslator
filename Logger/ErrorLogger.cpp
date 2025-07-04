@@ -3,38 +3,39 @@
 #include <iomanip>
 #include <ctime>
 
+using namespace std;
 namespace Logger {
 
-void ErrorLogger::IOError(const std::runtime_error& e, int lineNumber, const std::string& path) {
-    std::cerr << "[ERROR] I/O Error: " << e.what() << std::endl;
+void ErrorLogger::IOError(const runtime_error& e, int lineNumber, const string& path) {
+    cerr << "[ERROR] I/O Error: " << e.what() << endl;
     if (!path.empty()) {
-        std::cerr << "  File: " << path << std::endl;
+        cerr << "  File: " << path << endl;
     }
     if (lineNumber != -1) {
-        std::cerr << "  Line: " << lineNumber << std::endl;
+        cerr << "  Line: " << lineNumber << endl;
     }
 }
 
-void ErrorLogger::cmdLogError(const std::invalid_argument& e, int lineNumber, const std::string& command) {
-    std::cerr << "[ERROR] Command Parsing Error: " << e.what() << std::endl;
+void ErrorLogger::cmdLogError(const invalid_argument& e, int lineNumber, const string& command) {
+    cerr << "[ERROR] Command Parsing Error: " << e.what() << endl;
     if (lineNumber != -1) {
-        std::cerr << "  Line: " << lineNumber << std::endl;
+        cerr << "  Line: " << lineNumber << endl;
     }
     if (!command.empty()) {
-        std::cerr << "  Command: \"" << command << "\"" << std::endl;
+        cerr << "  Command: \"" << command << "\"" << endl;
     }
 }
 
-void ErrorLogger::transLogError(const std::exception& e, const std::string& context) {
-    std::cerr << "[ERROR] Translation Error: " << e.what() << std::endl;
+void ErrorLogger::transLogError(const exception& e, const string& context) {
+    cerr << "[ERROR] Translation Error: " << e.what() << endl;
     if (!context.empty()) {
-        std::cerr << "  Context: " << context << std::endl;
+        cerr << "  Context: " << context << endl;
     }
 }
 
-void ErrorLogger::logError(const std::string& message) {
-    std::time_t now = std::time(nullptr);
-    std::cerr << "[ERROR] [" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] " << message << std::endl;
+void ErrorLogger::logError(const string& message) {
+    time_t now = time(nullptr);
+    cerr << "[ERROR] [" << put_time(localtime(&now), "%Y-%m-%d %H:%M:%S") << "] " << message << endl;
 }
 
 } // namespace Logger

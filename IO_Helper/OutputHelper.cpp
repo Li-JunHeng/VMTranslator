@@ -2,19 +2,20 @@
 #include <stdexcept>
 #include "../Logger/ErrorLogger.h"
 
+using namespace std;
 namespace IO_Helper {
 
-OutputHelper::OutputHelper(const std::string& filename) : outputStream(&fileStream), ownsStream(true) {
+OutputHelper::OutputHelper(const string& filename) : outputStream(&fileStream), ownsStream(true) {
     fileStream.open(filename);
     if (!fileStream.is_open()) {
-        Logger::ErrorLogger::IOError(std::runtime_error("无法打开输出文件"), -1, filename);
+        Logger::ErrorLogger::IOError(runtime_error("无法打开输出文件"), -1, filename);
         outputStream = nullptr;
     }
 }
 
-OutputHelper::OutputHelper(std::ostream& stream) : outputStream(&stream), ownsStream(false) {
+OutputHelper::OutputHelper(ostream& stream) : outputStream(&stream), ownsStream(false) {
     if (!stream.good()) {
-        Logger::ErrorLogger::IOError(std::runtime_error("输出流状态无效"), -1, "");
+        Logger::ErrorLogger::IOError(runtime_error("输出流状态无效"), -1, "");
         outputStream = nullptr;
     }
 }
@@ -27,17 +28,17 @@ bool OutputHelper::isValid() const {
     return outputStream != nullptr && (*outputStream).good();
 }
 
-void OutputHelper::writeLine(const std::string& line) {
+void OutputHelper::writeLine(const string& line) {
     if (isValid()) {
         *outputStream << line << '\n';
         if (!outputStream->good()) {
-            Logger::ErrorLogger::IOError(std::runtime_error("写入行时发生错误"), -1, "");
+            Logger::ErrorLogger::IOError(runtime_error("写入行时发生错误"), -1, "");
         }
     }
 }
 
-void OutputHelper::writeLines(const std::vector<std::string>& lines) {
-    for (const std::string& line : lines) {
+void OutputHelper::writeLines(const vector<string>& lines) {
+    for (const string& line : lines) {
         writeLine(line);
     }
 }

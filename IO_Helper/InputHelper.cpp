@@ -5,32 +5,33 @@
 #include <locale>
 #include "../Logger/ErrorLogger.h"
 
+using namespace std;
 namespace IO_Helper {
 
 // 辅助函数：修剪字符串首尾空白字符
-static std::string trim(const std::string& s) {
+static string trim(const string& s) {
     auto start = s.begin();
-    while (start != s.end() && std::isspace(*start)) {
+    while (start != s.end() && isspace(*start)) {
         start++;
     }
     auto end = s.end();
     do {
         end--;
-    } while (std::distance(start, end) > 0 && std::isspace(*end));
-    return std::string(start, end + 1);
+    } while (distance(start, end) > 0 && isspace(*end));
+    return string(start, end + 1);
 }
 
-InputHelper::InputHelper(const std::string& filename) : inputStream(&fileStream), ownsStream(true), lineNumber(0) {
+InputHelper::InputHelper(const string& filename) : inputStream(&fileStream), ownsStream(true), lineNumber(0) {
     fileStream.open(filename);
     if (!fileStream.is_open()) {
-        Logger::ErrorLogger::IOError(std::runtime_error("无法打开输入文件"), -1, filename);
+        Logger::ErrorLogger::IOError(runtime_error("无法打开输入文件"), -1, filename);
         inputStream = nullptr;
     }
 }
 
-InputHelper::InputHelper(std::istream& stream) : inputStream(&stream), ownsStream(false), lineNumber(0) {
+InputHelper::InputHelper(istream& stream) : inputStream(&stream), ownsStream(false), lineNumber(0) {
     if (!stream.good()) {
-        Logger::ErrorLogger::IOError(std::runtime_error("输入流状态无效"), -1, "");
+        Logger::ErrorLogger::IOError(runtime_error("输入流状态无效"), -1, "");
         inputStream = nullptr;
     }
 }
@@ -49,21 +50,21 @@ bool InputHelper::isValid() const {
     return inputStream != nullptr && (*inputStream).good();
 }
 
-std::pair<std::string, int> InputHelper::readLine() {
+pair<string, int> InputHelper::readLine() {
     if (!isValid()) {
         return {"", -1};
     }
 
-    std::string line;
-    if (std::getline(*inputStream, line)) {
+    string line;
+    if (getline(*inputStream, line)) {
         lineNumber++;
         // 移除行内注释
         size_t commentPos = line.find("//");
-        if (commentPos != std::string::npos) {
+        if (commentPos != string::npos) {
             line = line.substr(0, commentPos);
         }
         // 修剪空白字符
-        std::string trimmedLine = trim(line);
+        string trimmedLine = trim(line);
         return {trimmedLine, lineNumber};
     }
 
@@ -71,9 +72,9 @@ std::pair<std::string, int> InputHelper::readLine() {
     return {"", -1};
 }
 
-std::vector<std::pair<std::string, int>> InputHelper::readAllLines() {
-    std::vector<std::pair<std::string, int>> lines;
-    std::pair<std::string, int> line;
+vector<pair<string, int>> InputHelper::readAllLines() {
+    vector<pair<string, int>> lines;
+    pair<string, int> line;
     while (!(line = readLine()).first.empty() || line.second != -1) {
         if (line.second != -1) {
             lines.push_back(line);

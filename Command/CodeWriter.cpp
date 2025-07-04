@@ -3,12 +3,14 @@
 #include <algorithm>
 #include "../Logger/ErrorLogger.h"
 
+using namespace std;
+
 namespace Command {
 
-CodeWriter::CodeWriter(const std::string& filename) : labelCounter(0) {
+CodeWriter::CodeWriter(const string& filename) : labelCounter(0) {
     outputStream.open(filename);
     if (!outputStream.is_open()) {
-        Logger::ErrorLogger::IOError(std::runtime_error("无法打开输出文件"), -1, filename);
+        Logger::ErrorLogger::IOError(runtime_error("无法打开输出文件"), -1, filename);
     }
 
     // 初始化段映射
@@ -26,21 +28,21 @@ CodeWriter::~CodeWriter() {
     close();
 }
 
-void CodeWriter::setFileName(const std::string& filename) {
+void CodeWriter::setFileName(const string& filename) {
     currentFileName = filename;
     // 提取文件名（不含路径和扩展名）
     size_t lastSlash = filename.find_last_of("/\"");
-    if (lastSlash != std::string::npos) {
+    if (lastSlash != string::npos) {
         currentFileName = filename.substr(lastSlash + 1);
     }
     size_t lastDot = currentFileName.find_last_of('.');
-    if (lastDot != std::string::npos) {
+    if (lastDot != string::npos) {
         currentFileName = currentFileName.substr(0, lastDot);
     }
 }
 
-std::string CodeWriter::generateLabel(const std::string& base) {
-    return base + "$" + std::to_string(labelCounter++);
+string CodeWriter::generateLabel(const string& base) {
+    return base + "$" + to_string(labelCounter++);
 }
 
 void CodeWriter::writeArithmeticAdd() {
@@ -69,8 +71,8 @@ void CodeWriter::writeArithmeticNeg() {
 }
 
 void CodeWriter::writeArithmeticEq() {
-    std::string labelTrue = generateLabel("TRUE");
-    std::string labelEnd = generateLabel("END");
+    string labelTrue = generateLabel("TRUE");
+    string labelEnd = generateLabel("END");
     outputStream << "// eq\n";
     outputStream << "@SP\n";
     outputStream << "AM=M-1\n";
@@ -92,8 +94,8 @@ void CodeWriter::writeArithmeticEq() {
 }
 
 void CodeWriter::writeArithmeticGt() {
-    std::string labelTrue = generateLabel("TRUE");
-    std::string labelEnd = generateLabel("END");
+    string labelTrue = generateLabel("TRUE");
+    string labelEnd = generateLabel("END");
     outputStream << "// gt\n";
     outputStream << "@SP\n";
     outputStream << "AM=M-1\n";
@@ -115,8 +117,8 @@ void CodeWriter::writeArithmeticGt() {
 }
 
 void CodeWriter::writeArithmeticLt() {
-    std::string labelTrue = generateLabel("TRUE");
-    std::string labelEnd = generateLabel("END");
+    string labelTrue = generateLabel("TRUE");
+    string labelEnd = generateLabel("END");
     outputStream << "// lt\n";
     outputStream << "@SP\n";
     outputStream << "AM=M-1\n";
@@ -162,7 +164,7 @@ void CodeWriter::writeArithmeticNot() {
     outputStream << "M=!M\n";
 }
 
-void CodeWriter::writeArithmetic(const std::string& command) {
+void CodeWriter::writeArithmetic(const string& command) {
     outputStream << "// ----------------------------\n";
     outputStream << "// " << command << "\n";
     outputStream << "// ----------------------------\n";
@@ -177,11 +179,11 @@ void CodeWriter::writeArithmetic(const std::string& command) {
     else if (command == "or") writeArithmeticOr();
     else if (command == "not") writeArithmeticNot();
     else {
-        Logger::ErrorLogger::transLogError(std::invalid_argument("未知算术命令: " + command), "CodeWriter::writeArithmetic");
+        Logger::ErrorLogger::transLogError(invalid_argument("未知算术命令: " + command), "CodeWriter::writeArithmetic");
     }
 }
 
-void CodeWriter::writePushPop(CommandType commandType, const std::string& segment, int index) {
+void CodeWriter::writePushPop(CommandType commandType, const string& segment, int index) {
     outputStream << "// ----------------------------\n";
     outputStream << "// " << (commandType == CommandType::C_PUSH ? "push" : "pop") << " " << segment << " " << index << "\n";
     outputStream << "// ----------------------------\n";
@@ -217,7 +219,7 @@ void CodeWriter::writePushPop(CommandType commandType, const std::string& segmen
             outputStream << "A=M-1\n";
             outputStream << "M=D\n";
         } else {
-            Logger::ErrorLogger::transLogError(std::invalid_argument("未知段: " + segment), "CodeWriter::writePushPop");
+            Logger::ErrorLogger::transLogError(invalid_argument("未知段: " + segment), "CodeWriter::writePushPop");
         }
     } else { // C_POP
         if (segment == "static") {
@@ -244,23 +246,23 @@ void CodeWriter::writePushPop(CommandType commandType, const std::string& segmen
             outputStream << "A=M\n";
             outputStream << "M=D\n";
         } else {
-            Logger::ErrorLogger::transLogError(std::invalid_argument("未知段: " + segment), "CodeWriter::writePushPop");
+            Logger::ErrorLogger::transLogError(invalid_argument("未知段: " + segment), "CodeWriter::writePushPop");
         }
     }
 }
 
-void CodeWriter::writeLabel(const std::string& label) {
+void CodeWriter::writeLabel(const string& label) {
     outputStream << "// label " << label << "\n";
     outputStream << "(" << currentFunction << "$" << label << ")\n";
 }
 
-void CodeWriter::writeGoto(const std::string& label) {
+void CodeWriter::writeGoto(const string& label) {
     outputStream << "// goto " << label << "\n";
     outputStream << "@" << currentFunction << "$" << label << "\n";
     outputStream << "0;JMP\n";
 }
 
-void CodeWriter::writeIf(const std::string& label) {
+void CodeWriter::writeIf(const string& label) {
     outputStream << "// if-goto " << label << "\n";
     outputStream << "@SP\n";
     outputStream << "AM=M-1\n";
@@ -269,7 +271,7 @@ void CodeWriter::writeIf(const std::string& label) {
     outputStream << "D;JNE\n";
 }
 
-void CodeWriter::writeFunction(const std::string& functionName, int nVars) {
+void CodeWriter::writeFunction(const string& functionName, int nVars) {
     currentFunction = functionName;
     outputStream << "// function " << functionName << " " << nVars << "\n";
     outputStream << "(" << functionName << ")\n";
@@ -285,8 +287,8 @@ void CodeWriter::writeFunction(const std::string& functionName, int nVars) {
     }
 }
 
-void CodeWriter::writeCall(const std::string& functionName, int nArgs) {
-    std::string returnLabel = generateLabel(functionName + "$ret");
+void CodeWriter::writeCall(const string& functionName, int nArgs) {
+    string returnLabel = generateLabel(functionName + "$ret");
 
     outputStream << "// call " << functionName << " " << nArgs << "\n";
     // 保存返回地址
@@ -298,7 +300,7 @@ void CodeWriter::writeCall(const std::string& functionName, int nArgs) {
     outputStream << "M=D\n";
 
     // 保存LCL、ARG、THIS、THAT
-    for (const std::string& reg : {"LCL", "ARG", "THIS", "THAT"}) {
+    for (const string& reg : {"LCL", "ARG", "THIS", "THAT"}) {
         outputStream << "@" << reg << "\n";
         outputStream << "D=M\n";
         outputStream << "@SP\n";
@@ -360,7 +362,7 @@ void CodeWriter::writeReturn() {
     outputStream << "M=D\n";
 
     // 恢复THAT、THIS、ARG、LCL
-    for (const std::pair<std::string, int>& reg : {std::make_pair("THAT", 1), std::make_pair("THIS", 2), std::make_pair("ARG", 3), std::make_pair("LCL", 4)}) {
+    for (const pair<string, int>& reg : {make_pair("THAT", 1), make_pair("THIS", 2), make_pair("ARG", 3), make_pair("LCL", 4)}) {
         outputStream << "@R13\n";
         outputStream << "D=M\n";
         outputStream << "@" << reg.second << "\n";

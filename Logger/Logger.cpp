@@ -6,8 +6,9 @@
 
 namespace Logger {
 
+using namespace std;
 static LogLevel currentLevel = LogLevel::INFO;
-static std::mutex logMutex;
+static mutex logMutex;
 
 void setLogLevel(LogLevel level) {
     currentLevel = level;
@@ -17,7 +18,7 @@ LogLevel getLogLevel() {
     return currentLevel;
 }
 
-std::string logLevelToString(LogLevel level) {
+string logLevelToString(LogLevel level) {
     switch (level) {
         case LogLevel::INFO: return "INFO";
         case LogLevel::WARNING: return "WARNING";
@@ -27,14 +28,14 @@ std::string logLevelToString(LogLevel level) {
     }
 }
 
-void log(LogLevel level, const std::string& message) {
+void log(LogLevel level, const string& message) {
     if (level < currentLevel) return;
 
-    std::lock_guard<std::mutex> lock(logMutex);
-    std::time_t now = std::time(nullptr);
-    std::cout << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
-              << "[" << std::setw(7) << logLevelToString(level) << "]: "
-              << message << std::endl;
+    lock_guard<mutex> lock(logMutex);
+    time_t now = time(nullptr);
+    cout << "[" << put_time(localtime(&now), "%Y-%m-%d %H:%M:%S") << "] "
+              << "[" << setw(7) << logLevelToString(level) << "]: "
+              << message << endl;
 }
 
 } // namespace Logger

@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <iostream>
 #include <algorithm>
-#include <cstring>
+#include <string>
 #include "../Logger/ErrorLogger.h"
 
 namespace IO_Helper {
