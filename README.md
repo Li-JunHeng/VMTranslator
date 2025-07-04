@@ -1,74 +1,58 @@
-# JackAssembler
+# VMTranslator
 
-JackAssembler 是一个用于将 Hack 汇编语言（.asm 文件）翻译为 Hack 机器码（.hack 文件）的命令行工具，适用于 Nand2Tetris 课程相关项目。
+VMTranslator 是一个将 VM 虚拟机语言翻译为 Hack 汇编语言的命令行工具，适用于 Nand2Tetris 课程相关项目。
 
-## 特性
+## 功能简介
+- 支持将单个 `.vm` 文件或包含多个 `.vm` 文件的目录翻译为 `.asm` 汇编文件。
+- 提供命令行参数帮助和版本信息。
+- 错误处理友好，支持输入路径校验。
 
-- 支持标准 Hack 汇编到机器码的转换
-- 命令行参数友好，支持输入输出文件自定义
-- 代码结构清晰，易于扩展和维护
+## 编译方法
 
-## 用法
+本项目使用 CMake 构建。
 
-```sh
-./JackAssembler <input_file> <output_file>
-```
-
-或使用选项：
-
-```sh
-./JackAssembler --help
-```
-
-### 示例
-
-```sh
-./JackAssembler test/add/Add.asm test/add/Add.hack
-```
-
-## 命令行选项
-
-- `<input_file>`：输入的 .asm 汇编文件路径
-- `<output_file>`：输出的 .hack 机器码文件路径
-- `--help`：显示详细的帮助信息
-
-## 目录结构
-
-```
-Command/         # 汇编命令解析与翻译
-Helper/          # 命令行参数与工具类
-IO_Helper/       # 文件读写相关
-Logger/          # 错误与日志处理
-Memory/          # 符号表与内存分配
-test/            # 测试用例
-main.cpp         # 程序入口
-CMakeLists.txt   # CMake 构建脚本
-```
-
-## 构建
-
-本项目使用 CMake 构建：
-
-```sh
-mkdir build
-cd build
+```bash
+mkdir build && cd build
 cmake ..
 make
 ```
+编译完成后会生成 `VMTranslator` 可执行文件。
 
-生成的可执行文件位于 `build/` 目录下。
+## 使用方法
 
-## 依赖
+```bash
+VMTranslator [选项] <输入路径> [输出路径]
+```
 
-- C++23 或更高版本
-- CMake 3.10+
+### 选项
+- `-h`, `--help`      显示帮助信息并退出
+- `-v`, `--version`   显示版本信息并退出
 
-## 参考
+### 输入路径
+- 可以是单个 `.vm` 文件或包含 `.vm` 文件的目录
 
-- [Nand2Tetris 官方网站](https://www.nand2tetris.org/)
-- [Hack 汇编语言规范](https://www.nand2tetris.org/project06)
+### 输出路径
+- 指定输出 `.asm` 文件的路径，默认为：
+  - 输入为文件：与输入文件同目录，文件名相同但扩展名为 `.asm`
+  - 输入为目录：在该目录下创建与目录同名的 `.asm` 文件
 
----
+### 示例
+```bash
+# 翻译单个文件
+target/VMTranslator test.vm
 
-如需进一步完善或定制内容，请告知！
+# 翻译目录下所有 .vm 文件
+target/VMTranslator ./project_dir
+
+# 指定输出文件
+target/VMTranslator input.vm output.asm
+```
+
+## 许可证
+
+本项目基于 MIT License。
+
+## 致谢
+
+本工具参考自 Nand2Tetris 课程项目。
 
