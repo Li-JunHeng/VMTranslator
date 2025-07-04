@@ -28,6 +28,14 @@ CodeWriter::~CodeWriter() {
     close();
 }
 
+void CodeWriter::writeBootstrap() {
+    outputStream << "// --- 引导代码：初始化 SP 到 256 ---\n";
+    outputStream << "@256\n";
+    outputStream << "D=A\n";
+    outputStream << "@SP\n";
+    outputStream << "M=D\n";
+}
+
 void CodeWriter::setFileName(const string& filename) {
     currentFileName = filename;
     // 提取文件名（不含路径和扩展名）
@@ -271,19 +279,20 @@ void CodeWriter::writeIf(const string& label) {
     outputStream << "D;JNE\n";
 }
 
-void CodeWriter::writeFunction(const string& functionName, int nVars) {
+void CodeWriter::writeFunction(const string& functionName, int nLocals) {
     currentFunction = functionName;
-    outputStream << "// function " << functionName << " " << nVars << "\n";
+    outputStream << "// function " << functionName << " " << nLocals << "\n";
     outputStream << "(" << functionName << ")\n";
-
-    // 初始化nVars个局部变量为0
-    for (int i = 0; i < nVars; i++) {
+    // 初始化局部变量：压入nLocals个0
+    for (int i = 0; i < nLocals; ++i) {
+        outputStream << "// push constant 0\n";
         outputStream << "@0\n";
         outputStream << "D=A\n";
         outputStream << "@SP\n";
-        outputStream << "M=M+1\n";
-        outputStream << "A=M-1\n";
+        outputStream << "A=M\n";
         outputStream << "M=D\n";
+        outputStream << "@SP\n";
+        outputStream << "M=M+1\n";
     }
 }
 
@@ -379,6 +388,11 @@ void CodeWriter::writeReturn() {
 }
 
 void CodeWriter::close() {
+    // 添加程序结束的无限循环
+    outputStream << "\n(END)\n";
+    outputStream << "@END\n";
+    outputStream << "0;JMP\n";
+
     if (outputStream.is_open()) {
         outputStream.close();
     }

@@ -21,6 +21,7 @@ private:
 
     void collectVMFiles();
     std::string getOutputFileName(const std::string& vmFile);
+    int count_files_with_extension(const std::filesystem::path& dir, const std::string& ext);
 
 public:
     Helper(const std::string& input, const std::string& output);

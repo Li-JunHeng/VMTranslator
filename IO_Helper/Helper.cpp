@@ -49,6 +49,16 @@ void Helper::collectVMFiles() {
     }
 }
 
+int Helper::count_files_with_extension(const fs::path& dir, const std::string& ext) {
+    int cnt = 0;
+    for (auto& entry : fs::directory_iterator(dir)) {
+        if (entry.is_regular_file() && entry.path().extension() == ext) {
+            cnt ++;
+        }
+    }
+    return cnt;
+}
+
 string Helper::getOutputFileName(const string& vmFile) {
     return fs::path(vmFile).filename().replace_extension(".asm").string();
 }
@@ -57,7 +67,8 @@ void Helper::translate() {
     Command::CodeWriter codeWriter(outputPath);
 
     // 如果是目录，添加引导代码
-    if (isDirectory) {
+    if (isDirectory && count_files_with_extension (inputPath, ".vm") != 1) {
+        codeWriter.writeBootstrap();
         codeWriter.writeCall("Sys.init", 0);
     }
 

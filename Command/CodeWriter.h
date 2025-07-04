@@ -42,6 +42,7 @@ public:
     void writeFunction(const std::string& functionName, int nVars);
     void writeCall(const std::string& functionName, int nArgs);
     void writeReturn();
+    void writeBootstrap();
     void close();
 };
 
