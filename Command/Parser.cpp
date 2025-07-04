@@ -32,10 +32,14 @@ void Parser::advance() {
         if (commentPos != string::npos) {
             line = line.substr(0, commentPos);
         }
-        // 移除首尾空白
-        size_t start = line.find_first_not_of(" 	");
-        if (start == string::npos) continue; // 空行
-        size_t end = line.find_last_not_of(" 	");
+        // 去除回车符
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        // 移除首尾空白，包括空格、制表符和回车
+        size_t start = line.find_first_not_of(" \t\r");
+        if (start == string::npos) continue; // 空行或仅有空白
+        size_t end = line.find_last_not_of(" \t\r");
         currentCommand = line.substr(start, end - start + 1);
         tokenize();
         return;
@@ -54,9 +58,13 @@ void Parser::tokenize() {
 }
 
 bool Parser::nextCommand() {
-    if (!hasMoreCommands()) return false;
-    advance();
-    return !currentCommand.empty();
+    while (true) {
+        if (!hasMoreCommands()) return false;
+        advance();
+        if (!currentCommand.empty()) {
+            return true;
+        }
+    }
 }
 
 CommandType Parser::commandType() const {

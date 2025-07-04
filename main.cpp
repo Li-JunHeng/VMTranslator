@@ -15,6 +15,8 @@ int main(int argc, char* argv[]) {
 
     string inputPath = cli.getInputPath();
     string outputPath = cli.getOutputPath();
+    // string inputPath = "SimpleAdd.vm";
+    // string outputPath = "SimpleAdd.asm";
 
     IO_Helper::Helper helper(inputPath, outputPath);
     helper.translate();

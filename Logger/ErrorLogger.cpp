@@ -14,6 +14,8 @@ void ErrorLogger::IOError(const runtime_error& e, int lineNumber, const string& 
     if (lineNumber != -1) {
         cerr << "  Line: " << lineNumber << endl;
     }
+
+    throw e;
 }
 
 void ErrorLogger::cmdLogError(const invalid_argument& e, int lineNumber, const string& command) {
@@ -24,6 +26,8 @@ void ErrorLogger::cmdLogError(const invalid_argument& e, int lineNumber, const s
     if (!command.empty()) {
         cerr << "  Command: \"" << command << "\"" << endl;
     }
+
+    throw e;
 }
 
 void ErrorLogger::transLogError(const exception& e, const string& context) {
@@ -31,6 +35,8 @@ void ErrorLogger::transLogError(const exception& e, const string& context) {
     if (!context.empty()) {
         cerr << "  Context: " << context << endl;
     }
+
+    throw e;
 }
 
 void ErrorLogger::logError(const string& message) {

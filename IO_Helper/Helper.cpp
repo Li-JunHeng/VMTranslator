@@ -5,16 +5,17 @@
 #include <string>
 #include "../Logger/ErrorLogger.h"
 
+using namespace std;
 namespace IO_Helper {
-namespace fs = std::filesystem;
+namespace fs = filesystem;
 
-Helper::Helper(const std::string& input, const std::string& output) : inputPath(input), outputPath(output) {
+Helper::Helper(const string& input, const string& output) : inputPath(input), outputPath(output) {
     // 检查输入路径是否为目录
     if (fs::is_directory(inputPath)) {
         isDirectory = true;
         collectVMFiles();
         if (vmFiles.empty()) {
-            Logger::ErrorLogger::IOError(std::runtime_error("目录中未找到VM文件"), -1, inputPath);
+            Logger::ErrorLogger::IOError(runtime_error("目录中未找到VM文件"), -1, inputPath);
         }
         // 如果未指定输出路径，使用目录名作为输出文件名
         if (outputPath.empty()) {
@@ -24,7 +25,7 @@ Helper::Helper(const std::string& input, const std::string& output) : inputPath(
         isDirectory = false;
         // 检查输入文件是否为.vm文件
         if (fs::path(inputPath).extension() != ".vm") {
-            Logger::ErrorLogger::IOError(std::runtime_error("输入文件不是VM文件"), -1, inputPath);
+            Logger::ErrorLogger::IOError(runtime_error("输入文件不是VM文件"), -1, inputPath);
         }
         vmFiles.push_back(inputPath);
         // 如果未指定输出路径，使用输入文件名替换扩展名为.asm
@@ -42,13 +43,13 @@ void Helper::collectVMFiles() {
             }
         }
         // 按文件名排序
-        std::sort(vmFiles.begin(), vmFiles.end());
+        sort(vmFiles.begin(), vmFiles.end());
     } catch (const fs::filesystem_error& e) {
-        Logger::ErrorLogger::IOError(std::runtime_error("目录访问错误: " + std::string(e.what())), -1, inputPath);
+        Logger::ErrorLogger::IOError(runtime_error("目录访问错误: " + string(e.what())), -1, inputPath);
     }
 }
 
-std::string Helper::getOutputFileName(const std::string& vmFile) {
+string Helper::getOutputFileName(const string& vmFile) {
     return fs::path(vmFile).filename().replace_extension(".asm").string();
 }
 
@@ -60,20 +61,28 @@ void Helper::translate() {
         codeWriter.writeCall("Sys.init", 0);
     }
 
-    for (const std::string& vmFile : vmFiles) {
+    for (const string& vmFile : vmFiles) {
         Command::Parser parser(vmFile);
         if (!parser.nextCommand()) {
-            Logger::ErrorLogger::IOError(std::runtime_error("无法读取VM文件"), -1, vmFile);
+            Logger::ErrorLogger::IOError(runtime_error("无法读取VM文件"), -1, vmFile);
             continue;
         }
 
         codeWriter.setFileName(vmFile);
-        std::cout << "正在处理: " << vmFile << std::endl;
+        cout << "正在处理: " << vmFile << endl;
 
         do {
             Command::CommandType type = parser.commandType();
-            std::string arg1 = parser.arg1();
-            int arg2 = parser.arg2();
+            string arg1;
+            int arg2 = 0;
+
+            if (type != Command::CommandType::C_RETURN) {
+                arg1 = parser.arg1();
+            }
+            if (type == Command::CommandType::C_PUSH || type == Command::CommandType::C_POP || 
+                type == Command::CommandType::C_FUNCTION || type == Command::CommandType::C_CALL) {
+                arg2 = parser.arg2();
+            }
 
             switch (type) {
                 case Command::CommandType::C_ARITHMETIC:
@@ -102,13 +111,13 @@ void Helper::translate() {
                     codeWriter.writeReturn();
                     break;
                 default:
-                    Logger::ErrorLogger::cmdLogError(std::invalid_argument("未知命令类型"), parser.getLineNumber(), "");
+                    Logger::ErrorLogger::cmdLogError(invalid_argument("未知命令类型"), parser.getLineNumber(), "");
             }
         } while (parser.nextCommand());
     }
 
     codeWriter.close();
-    std::cout << "翻译完成，输出文件: " << outputPath << std::endl;
+    cout << "翻译完成，输出文件: " << outputPath << endl;
 }
 
 } // namespace IO_Helper
